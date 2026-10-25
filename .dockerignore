@@ -1,0 +1,7 @@
+*
+!docker/
+!docker/Dockerfile
+!src/
+!src/proxy.py
+!scripts/
+!scripts/foxyproxy.sh

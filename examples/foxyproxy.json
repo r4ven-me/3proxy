@@ -1,0 +1,41 @@
+{
+  "mode": "disable",
+  "data": [
+    {
+      "active": true,
+      "title": "Ethernet enp5s0",
+      "type": "socks5",
+      "hostname": "127.0.0.1",
+      "port": "1081",
+      "username": "",
+      "password": "",
+      "cc": "",
+      "city": "",
+      "color": "#88c0d0",
+      "pac": "",
+      "pacString": "",
+      "proxyDNS": true,
+      "include": [],
+      "exclude": [],
+      "tabProxy": []
+    },
+    {
+      "active": true,
+      "title": "VPN vpn0",
+      "type": "socks5",
+      "hostname": "127.0.0.1",
+      "port": "1082",
+      "username": "",
+      "password": "",
+      "cc": "",
+      "city": "",
+      "color": "#a3be8c",
+      "pac": "",
+      "pacString": "",
+      "proxyDNS": true,
+      "include": [],
+      "exclude": [],
+      "tabProxy": []
+    }
+  ]
+}

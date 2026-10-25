@@ -1,0 +1,76 @@
+---
+
+name: 3proxy
+
+x-proxy: &proxy
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+  image: local/interface-3proxy:0.9.5
+  network_mode: host
+  restart: unless-stopped
+  user: "65534:65534"
+  configs:
+    - source: proxy-template
+      target: /etc/3proxy/3proxy.cfg.tmpl
+    - source: compose-source
+      target: /etc/3proxy/compose.yaml
+  cap_drop:
+    - ALL
+  cap_add:
+    - NET_RAW
+  security_opt:
+    - no-new-privileges:true
+  pids_limit: 512
+  mem_limit: 1g
+  cpus: 1.0
+  stop_grace_period: 30s
+  logging:
+    driver: json-file
+    options:
+      max-size: "5m"
+      max-file: "2"
+
+services:
+  ethernet:
+    <<: *proxy
+    container_name: 3proxy-ethernet
+    hostname: 3proxy-ethernet
+    environment:
+      PROXY_INTERFACE: enp5s0
+      PROXY_PORT: "1081"
+      PROXY_NAME: Ethernet enp5s0
+      PROXY_COLOR: "#88c0d0"
+  vpn:
+    <<: *proxy
+    container_name: 3proxy-vpn
+    hostname: 3proxy-vpn
+    environment:
+      PROXY_INTERFACE: vpn0
+      PROXY_PORT: "1082"
+      PROXY_NAME: VPN vpn0
+      PROXY_COLOR: "#a3be8c"
+
+configs:
+  compose-source:
+    file: ./compose.yaml
+  proxy-template:
+    content: |
+      log
+      logformat "L%Y-%m-%d %H:%M:%S %N:%p error=%E in=%I out=%O"
+      maxconn 128
+      timeouts 1 5 30 60 180 1800 5 60 10 5
+
+      # Built-in DNS sockets do not honor -De. Bind the relay instead.
+      nserver 127.0.0.1:@DNS_PORT@/tcp
+      nscache 4096
+      auth iponly
+      allow * 127.0.0.1 * * CONNECT
+      deny *
+      tcppm -4 -i127.0.0.1 -De@INTERFACE@ @DNS_PORT@ @DNS_SERVER@ 53
+      flush
+
+      # Browser traffic: no SOCKS BIND or UDP association.
+      allow * 127.0.0.1 * * CONNECT
+      deny *
+      socks -4 -i127.0.0.1 -p@PORT@ -De@INTERFACE@
